@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Machinarium Plumbing Simulator</title>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
+      window.pipes = {
+        edges: [],
+        nodes: {}
+      };
+
+      var svg;
+
+      function loadSvg() {
+        d3.xml('pipes.svg', function(error, xml) {
+          if (error) throw error;
+
+          var htmlSvg = document.getElementById('pipes');
+          htmlSvg.appendChild(xml.documentElement.getElementById('pipes-root'));
+
+          svg = d3.select(htmlSvg);
+
+          var xmlSvg = d3.select(xml.getElementsByTagName('svg')[0]);
+          svg.attr('viewBox', xmlSvg.attr('viewBox'));
+
+          buildGraph();
+        });
+      }
+
+      function buildGraph() {
+        buildGraphNodes();
+        buildGraphEdges();
+        initializeDisplay();
+      }
+
+      function buildGraphNodes() {
+        var node, d3Node;
+
+        svg.selectAll('g#Nodes > *').each(function() {
+          d3Node = d3.select(this);
+
+          node = pipes.nodes[this.id] = {
+            id: this.id,
+            type: nodeTypeFromId(this.id),
+            d3: d3Node,
+            downstreamEdges: [],
+            downstreamNodes: function() {
+              return this.downstreamEdges.map(function(edge) {
+                return edge.to;
+              });
+            },
+            upstreamEdges: [],
+            hasInflow: function() {
+              return this.upstreamEdges.some(function(edge) {
+                return edge.getState() == 'on';
+              });
+            },
+            getState: function() {
+              switch(this.type) {
+                case 'input':
+                  return 'on';
+                case 'valve':
+                  // return this.valveState;
+                  if (this.valveState == 'off') {
+                    return 'off';
+                  } else {
+                    return this.hasInflow() ? 'on' : 'off';
+                  }
+                default:
+                  return this.hasInflow() ? 'on' : 'off';
+              }
+            },
+            click: function() {
+              if (this.type != 'valve') { return; }
+
+              switch (this.valveState) {
+                case 'on':
+                  this.valveState = 'off';
+                  console.log('Turned off valve ' + this.id);
+                  break;
+                case 'off':
+                  this.valveState = 'on';
+                  console.log('Turned on valve ' + this.id);
+                  break;
+              }
+
+              this.draw();
+            },
+            color: function() {
+              switch (this.valveState) {
+                case 'on':
+                  return '#FF8B00';
+                case 'off':
+                  return '#FFD19F';
+              }
+            },
+            draw: function() {
+              console.log('Redrawing node ' + this.id + ' (state: ' + this.getState() + ')');
+
+              if (this.type == 'valve') {
+                this.d3.select('circle').style('fill', this.color());
+              }
+
+              for (var edge of this.downstreamEdges) {
+                edge.draw();
+              }
+            }
+          };
+
+          // Add persistent state to valves
+          if (node.type == 'valve') {
+            node.valveState = 'on';
+          }
+
+          // Assign the node object as the D3 node's datum
+          node.d3.datum(node);
+        });
+      }
+
+      function buildGraphEdges() {
+        var nodeIds, sourceNode, sourceNodeId, destNode, destNodeId, d3Edge, edge;
+
+        svg.selectAll('g#Edges > *').each(function() {
+          nodeIds = tokenizeEdgeId(this.id);
+
+          sourceNodeId = nodeIds[0];
+          destNodeId = nodeIds[1];
+
+          sourceNode = pipes.nodes[sourceNodeId];
+          destNode = pipes.nodes[destNodeId];
+
+          d3Edge = d3.select(this);
+
+          edge = {
+            id: this.id,
+            d3: d3Edge,
+            from: sourceNode,
+            to: destNode,
+            getState: function() {
+              return this.from.getState();
+            },
+            color: function() {
+              switch (this.getState()) {
+                case 'on':
+                  return 'blue';
+                case 'off':
+                  return 'grey';
+                default:
+                  return 'red';
+              }
+            },
+            draw: function() {
+              console.log('Redrawing edge ' + this.id);
+              this.d3.style('stroke', this.color());
+              this.to.draw();
+            }
+          };
+
+          pipes.edges.push(edge);
+          sourceNode.downstreamEdges.push(edge);
+          destNode.upstreamEdges.push(edge);
+        });
+      }
+
+      function initializeDisplay() {
+        pipes.edges.forEach(function(edge) {
+          edge.draw();
+        });
+
+        var node, nodeId;
+        var onNodeClick = function(node) { node.click(); };
+
+        for (nodeId in pipes.nodes) {
+          node = pipes.nodes[nodeId];
+          node.d3.on('click', onNodeClick);
+        }
+      }
+
+      function nodeTypeFromId(nodeId) {
+        var prefix = nodeId.split('-')[0];
+
+        switch (prefix) {
+          case 'i':
+            return 'input';
+          case 'j':
+            return 'joint';
+          case 'o':
+            return 'output';
+          case 'v':
+            return 'valve';
+        }
+      }
+
+      function tokenizeEdgeId(edgeId) {
+        return edgeId.split('_x5F_');
+      }
+
+      loadSvg();
+    </script>
+  </head>
+  <body>
+    <div id="pipes-container">
+      <svg id="pipes" width="100%"></svg>
+    </div>
+  </body>
+</html>
