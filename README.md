@@ -8,4 +8,4 @@ Visit https://raws.github.io/machinarium-plumbing-sim. Click the orange valves t
 
 ### License
 
-Released by [Ross Paffett](https://github.com/raws) and [Elena Palesis](https://github.com/lenyaa) under the terms of the Do What the Fuck You Want to Public License (WTFPL).
+Released by [Ross Paffett](https://github.com/raws) and [Elena Palesis](https://github.com/elenapalesis) under the terms of the Do What the Fuck You Want to Public License (WTFPL).
