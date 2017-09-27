@@ -22,7 +22,7 @@ We can now use these labels to model our plumbing system as a graph, where a pip
 
 A common way to represent graphs is with an adjacency matrix. Two nodes are *adjacent* if they are connected by an edge; in other words, if they are direct neighbors of one another. Each element in the matrix represents a pair of nodes; if the two nodes are adjacent, then the element is 1. Otherwise it is 0 or empty.
 
-Here is our adjacency matrix, with the same color coding as in the grid:
+Here is our adjacency matrix, with the same color coding as in the grid. You may notice that it is symmetric, or that there are twice as many edges as you would expect. This is because each edge is represented twice: `a1` is a neighbor of `b1`, so `b1` is a neighbor of `a1`.
 
 ![adjacency matrix](./adjacency_matrix.png)
 
