@@ -15,7 +15,7 @@ We are presented with the following image:
 The arrow in the bottom left corner indicates the incoming flow, and the arrow in the third pipe along the top indicates the exit pipe whose flow we must cut off. The `+` marks indicate an attachment point for a wrench, which would cut off the flow of water through that segment of the pipe. We have 3 wrenches that we must attach in some combination to these attachment points in order to completely cut off the flow through the indicated top pipe.
 
 The first step to solving the problem programatically, of course, is to assign labels! Observe our wonderful grid system.
-![grid](./pipes-grid.jpg)
+![grid](./pipes-grid.jpg){:height="50%" width="50%"}
 The blue nodes represent junctions of 3 pipe segments, green nodes are output nodes that each connect to only one other node, and there is one source node, colored purple. The orange labels indicate a pipe segment that can be switched off by a wrench.
 
 We can now use these labels to model our plumbing system as a graph, where a pipe segment is represented as an edge between two nodes.
@@ -24,7 +24,7 @@ A common way to represent graphs is with an adjacency matrix. Two nodes are *adj
 
 Here is our adjacency matrix, with the same color coding as in the grid. You may notice that it is symmetric, or that there are twice as many edges as you would expect. This is because each edge is represented twice: `a1` is a neighbor of `b1`, so `b1` is a neighbor of `a1`.
 
-![adjacency matrix](./adjacency_matrix.png)
+![adjacency matrix](./adjacency_matrix.png){:height="50%" width="50%"}
 
 So with this graphical representation of our pipe system, we can rephrase the problem. Given what we know about the flow of water through pipes, if there exists a path between the source of the water and the target pipe, then water will be able to flow through the target pipe. Therefore, solving the problem comes down to finding out which three edges must be "wrenched" (i.e. deleted) in order to disconnect the source node `a1` from the target node `d9`.
 
