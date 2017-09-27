@@ -152,7 +152,7 @@ class PipeGraph(Graph):
 
 
 if __name__ == '__main__':
-    g = PipeGraph(adjacency_matrix_path='machinarium/adjacency_matrix.csv',
+    g = PipeGraph(adjacency_matrix_path='adjacency_matrix.csv',
                   root='a1', target='d9')
     g.get_node_neighbor_list()
     g.wrenchable_edges = {('c3', 'c1'): 'c2',
